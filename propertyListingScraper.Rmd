@@ -1,0 +1,90 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-03-27"
+---
+
+```{r}
+library(rvest)
+library(jsonlite)
+library(httr)
+library(stringr)
+```
+
+
+```{r}
+scrape_rental_listing <- function(url) {
+  page <- read_html(url)
+  
+  property_names <- page %>%
+    html_elements(".lbb-1 h3") %>%
+    html_text(trim = TRUE)
+  
+  details <- page %>%
+    html_elements(".lbb-21 ul li") %>%
+    html_text(trim = TRUE)
+  details <- matrix(details, ncol = 5, byrow = TRUE)
+  
+  price <- page %>%
+    html_elements(".lbb-22 h4") %>%
+    html_text(trim = TRUE)
+  
+  PSF <- page %>%
+    html_elements(".lbb-22 p") %>%
+    html_text(trim = TRUE)
+  
+  details <- page #some values are null in the dataset hich breaks the data if i scrape 
+    html_elements(".lbb-21 ul li") %>%
+    html_text(trim = TRUE)
+  details <- matrix(details, ncol = 5, byrow = TRUE)
+  
+  agent_info <- page %>%
+    html_elements(".bottom-agentt .ba-left span") %>%
+    html_text(trim = TRUE)
+  agent_id <- str_extract(agent_info, "#[A-Z0-9]+")
+  agent_name <- str_replace(agent_info, str_c(agent_id, "$"), "")
+  agent_name <- str_trim(agent_name)
+  
+  agent_phones <- page %>%
+    html_elements(".bottom-agentt ul li a[href^='tel:']") %>%
+    html_attr("href") %>%
+    gsub("tel:\\+", "", .)
+  
+  #detail_links <- page %>% #SUPER BUGGY do not turn on
+   # html_elements(".bottom-agentt ul li a[href*='/listing-details/']") %>%
+   # html_attr("href")
+  #full_detail_links <- paste0(url, detail_links)
+  
+  # Combine data into a data frame
+  Rental_Listing_Data <- data.frame(Property.Names = property_names,
+                                    Price = price,
+                                    PSF = PSF,
+                                    Details = details,
+                                    Agent = agent_name,
+                                    Agent.Num = agent_id,
+                                    Contact = agent_phones
+                                    #Link = full_detail_links
+                                    )
+  
+  return(Rental_Listing_Data)
+}
+
+```
+
+
+```{r}
+# Define the URL of the page to scrape
+url <- "https://www.propnex.com/rent"
+pages <- 3
+scrape_Data <- data.frame()
+
+for(i in 1:pages) {
+  urlPage <- paste0(url, "?pageNumber=", i)
+  temp <- scrape_rental_listing(urlPage)
+  scrape_Data <- rbind(scrape_Data, temp)
+}
+
+# Print the resulting data frame
+print(scrape_Data)
+```
+
