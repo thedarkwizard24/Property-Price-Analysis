@@ -1,0 +1,26 @@
+---
+title: "Data cleaning"
+author: "bryan goh"
+date: "2024-04-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#imports
+library(readr)
+```
+```{r}
+#import the datasets
+Apartment_Condo_1 <- read_csv("Property Price Data/Apartment & Condo_1.csv")
+Apartment_Condo_2 <- read_csv("Property Price Data/Apartment & Condo_2.csv")
+Apartment_Condo_3 <- read_csv("Property Price Data/Apartment & Condo_3.csv")
+Apartment_Condo_4 <- read_csv("Property Price Data/Apartment & Condo_4.csv")
+Executive_Condo <- read_csv("Property Price Data/executive condo.csv")
+Landed <- read_csv("Property Price Data/Landed.csv")
+```
+
+
